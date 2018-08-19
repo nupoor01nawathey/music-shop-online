@@ -2,6 +2,7 @@
 const express             = require('express'),
       bodyParser          = require('body-parser'),
       expejs              = require('ejs'),
+      path                = require('path'),
       mongoose            = require('mongoose'),
       session             = require('express-session'),
       mongoStoreSession   = require('connect-mongo')(session),
@@ -24,7 +25,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // setup view engine
-//app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // static folder setting
@@ -80,13 +81,14 @@ app.get('/add-to-cart/:id', (req, res) => {
     const cart = new Cart(req.session.cart ? req.session.cart : {}); // send if cart already exists within the session 
 
     Artist.findById(songId, (err, song) => {
+        encodeURIComponent(song.artistName);
         if(err) {
-            res.redirect('/index'); // send artist name later
+            res.redirect('/'); // http://localhost:3000/?name=John+Mayer
         }
        cart.add(song, songId);
        req.session.cart = cart ; // save cart session
 
-       res.redirect('/index'); // send artist name later
+       res.redirect('/?name=' + song.artistName); // http://localhost:3000/?name=John+Mayer
 
     }); 
 });
