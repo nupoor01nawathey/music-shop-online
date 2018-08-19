@@ -5,12 +5,12 @@ const request  = require('request'),
 mongoose.connect('mongodb://localhost:27017/musicshopdata' , {useNewUrlParser: true });
 
 function getArtistData(name) {
-    let url = 'https://itunes.apple.com/search?term=' + name + '&lang=en_us&limit=5'
+    let url = 'https://itunes.apple.com/search?term=' + name + '&lang=en_us&limit=200'
     
     request({
         url: url,
         json: true
-      }, (error, response, body) => {
+      }, (error, response, body, next) => {
          // const allSongs = (JSON.stringify(body.results, undefined, 2));
          const allSongs = body.results;
         
@@ -24,10 +24,10 @@ function getArtistData(name) {
             var Song = new Artist(oneSong);
             Song.save(function(err, result) {
                 done++;
-                console.log(`Adding data for ${done}`);
+                // console.log(`Adding data for ${done}`);
                 if(done === allSongs.length) {
                   console.log('Done adding data to db');
-                  exit(); 
+                  exit();
                 }
            });
          }
@@ -36,6 +36,7 @@ function getArtistData(name) {
 
 function exit() {
     mongoose.disconnect();
+    console.log('Disconnect from mongodb');
 }
 
 module.exports = getArtistData;
