@@ -1,11 +1,12 @@
 // include pre-defined lib 
 const express             = require('express'),
       bodyParser          = require('body-parser'),
+      logger              = require('morgan'),
       expejs              = require('ejs'),
       path                = require('path'),
       mongoose            = require('mongoose'),
       session             = require('express-session'),
-      mongoStoreSession   = require('connect-mongo')(session),
+      MongoStore          = require('connect-mongo')(session),
       cookieParser        = require('cookie-parser'),
       isomorphic          = require('isomorphic-fetch');
 
@@ -17,12 +18,17 @@ const seeder = require('./public/js/seeder'),
 // setup express app
 const app =  express();
 
+app.use(logger('dev'));
+
+
 // mongoose conncection str
 mongoose.connect('mongodb://localhost:27017/musicshopdata', { useNewUrlParser: true });
 
 // setup body-parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+
 
 // setup view engine
 app.set('views', path.join(__dirname, 'views'));
@@ -37,8 +43,8 @@ app.use(session({
     secret: "mySuperseCret",
     resave: false,
     saveUninitialized: false,
-    store: new mongoStoreSession({ mongooseConnection: mongoose.connection }), // use mongo connection for storing session
-    cookie: {maxAge: 5 * 60 * 1000 } // session timeout after min * sec * millisec
+    store: new MongoStore({ mongooseConnection: mongoose.connection }), // use mongo connection for storing session
+    cookie: { maxAge: 5 * 60 * 1000 } // session timeout after 5min * sec * millisec
 }));
 
 // middleware
@@ -81,12 +87,14 @@ app.get('/add-to-cart/:id', (req, res) => {
     const cart = new Cart(req.session.cart ? req.session.cart : {}); // send if cart already exists within the session 
 
     Artist.findById(songId, (err, song) => {
-        encodeURIComponent(song.artistName);
+        encodeURIComponent(song.artistName); // imp
         if(err) {
             res.redirect('/'); // http://localhost:3000/?name=John+Mayer
         }
        cart.add(song, songId);
        req.session.cart = cart ; // save cart session
+       
+       // res.redirect('/');
 
        res.redirect('/?name=' + song.artistName); // http://localhost:3000/?name=John+Mayer
 
@@ -94,8 +102,20 @@ app.get('/add-to-cart/:id', (req, res) => {
 });
 
 app.get('/shopping-cart', (req, res) => {
-    res.send('Going to shopping-cart');
-})
+    // res.send('Going to shopping-cart');
+    if(!req.session.cart) {
+        return res.render('cart/shopping-cart', {songs: null});
+    } 
+    var cart = new Cart(req.session.cart);
+    res.render('cart/shopping-cart', { 
+        songs: cart.generateArray(),  
+        totalPrice: cart.totalPrice 
+    });
+});
+
+app.get('/checkout', (req, res) => {
+    res.render('cart/checkout');
+});
 
 
 const PORT = process.env.PORT || 3000 ; // TODO get it from config depending on dev/prod env
@@ -104,4 +124,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
