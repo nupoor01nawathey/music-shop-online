@@ -3,6 +3,10 @@ module.exports = function Cart(oldCart) {
     this.totalQty = oldCart.totalQty || 0 ;
     this.totalPrice = oldCart.totalPrice || 0 ;
 
+    console.log('_______BEFORE_____________');
+    console.log(this.totalQty);
+    console.log('____________________');
+
     this.add = function(item, id) {
         var storedItem = this.items[id];
         if(!storedItem) {
@@ -13,11 +17,11 @@ module.exports = function Cart(oldCart) {
         storedItem.trackPrice = storedItem.item.trackPrice * storedItem.qty;
         this.totalQty++;
         this.totalPrice = Number(this.totalPrice) + Number(storedItem.item.trackPrice) ;
-        
-        console.log('$$$$ >>> ');
-        console.log(this.totalPrice);
-        console.log('$$$$ >>> ');
     };
+
+    console.log('______AFTER______________');
+    console.log(this.totalQty);
+    console.log('____________________');
 
     this.generateArray = function(){
         var arr = [];
