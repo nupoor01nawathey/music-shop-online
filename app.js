@@ -1,6 +1,7 @@
 // include pre-defined lib 
 const express             = require('express'),
       bodyParser          = require('body-parser'),
+      flash               = require('connect-flash'),
       logger              = require('morgan'),
       expejs              = require('ejs'),
       path                = require('path'),
@@ -8,7 +9,8 @@ const express             = require('express'),
       session             = require('express-session'),
       MongoStore          = require('connect-mongo')(session),
       cookieParser        = require('cookie-parser'),
-      isomorphic          = require('isomorphic-fetch');
+      isomorphic          = require('isomorphic-fetch'),
+      stripe              = require('stripe') ;
 
 // include custom lib
 const seeder = require('./public/js/seeder'),
@@ -46,6 +48,8 @@ app.use(session({
     store: new MongoStore({ mongooseConnection: mongoose.connection }), // use mongo connection for storing session
     cookie: { maxAge: 5 * 60 * 1000 } // session timeout after 5min * sec * millisec
 }));
+
+app.use(flash());
 
 // middleware
 app.use((req, res, next) => {
@@ -114,7 +118,40 @@ app.get('/shopping-cart', (req, res) => {
 });
 
 app.get('/checkout', (req, res) => {
-    res.render('cart/checkout');
+    if(!req.session.cart) {
+        return res.redirect('/shopping-cart');
+    }
+    const cart = new Cart(req.session.cart);
+    const errMsg = req.flash('error')[0];
+    res.render('cart/checkout', {total: cart.totalPrice, errMsg: errMsg, noError: !errMsg });
+});
+
+app.post('/checkout', (req, res, next) => {   
+    if(!req.session.cart) {
+        return res.redirect('/shopping-cart');
+    }
+    const cart = new Cart(req.session.cart);
+
+    // Set your secret key: remember to change this to your live secret key in production   
+    var stripe = require("stripe")("sk_test_YRqcNvr5XnGQnQfke6TW3wab");
+
+    // Token is created using Checkout or Elements!
+    // Get the payment token ID submitted by the form:
+    const token = req.body.stripeToken; // Using Express
+    const charge = stripe.charges.create({
+    amount: cart.totalPrice * 100,
+    currency: 'usd',
+    description: 'Example charge 1',
+    source: token,
+    }, (err, charge) => {
+        if(err) {
+           req.flash('error', err.message);
+           return res.redirect('/checkout'); 
+        } 
+        req.flash('success', 'Successfully placed an order');
+        req.cart = null;
+        res.redirect('/');
+    });
 });
 
 
