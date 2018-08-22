@@ -1,4 +1,4 @@
-var stripe = Stripe('pk_test_RDdKHCFpNdIPzgbAtIZeUbnO');
+var stripe = Stripe('YOUR_PUBLISHABLE_KEY');
 
 var $form = $("#checkout-form");
 $form.submit((event) => {
