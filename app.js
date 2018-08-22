@@ -65,11 +65,7 @@ app.get('/index', (req, res) => {
 app.get('/', (req, res, next) => { 
     // Remove existing data for the input Artist 
     const artistName = String(req.query.name);
-    // console.log("********************");
-    // console.log(req.query.name);
-    // console.log("********************");
-
-    // // seeder(artistName);
+    // seeder(artistName);
     Artist.find({ artistName: artistName})
     .select('_id trackName trackPrice collectionName currency previewUrl')
     .exec(function(err, artistSongs){
@@ -133,7 +129,7 @@ app.post('/checkout', (req, res, next) => {
     const cart = new Cart(req.session.cart);
 
     // Set your secret key: remember to change this to your live secret key in production   
-    var stripe = require("stripe")("sk_test_YRqcNvr5XnGQnQfke6TW3wab");
+    var stripe = require("stripe")("YOUR_SECRET_KEY");
 
     // Token is created using Checkout or Elements!
     // Get the payment token ID submitted by the form:
@@ -142,7 +138,7 @@ app.post('/checkout', (req, res, next) => {
     amount: cart.totalPrice * 100,
     currency: 'usd',
     description: 'Example charge 1',
-    source: token,
+    source: "tok_mastercard",
     }, (err, charge) => {
         if(err) {
            req.flash('error', err.message);
