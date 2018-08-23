@@ -1,16 +1,19 @@
 // include pre-defined lib 
-const express             = require('express'),
-      bodyParser          = require('body-parser'),
-      flash               = require('connect-flash'),
-      logger              = require('morgan'),
-      expejs              = require('ejs'),
-      path                = require('path'),
-      mongoose            = require('mongoose'),
-      session             = require('express-session'),
-      MongoStore          = require('connect-mongo')(session),
-      cookieParser        = require('cookie-parser'),
-      isomorphic          = require('isomorphic-fetch'),
-      stripe              = require('stripe') ;
+const express               = require('express'),
+      bodyParser            = require('body-parser'),
+      flash                 = require('connect-flash'),
+      logger                = require('morgan'),
+      expejs                = require('ejs'),
+      path                  = require('path'),
+      mongoose              = require('mongoose'),
+      session               = require('express-session'),
+      MongoStore            = require('connect-mongo')(session),
+      cookieParser          = require('cookie-parser'),
+      passport              = require('passport'),
+      LocalStrategy         = require('passport-local'),
+      PassportLocalMongoose = require('passport-local-mongoose'),
+      isomorphic            = require('isomorphic-fetch'),
+      stripe                = require('stripe') ;
 
 // include custom lib
 const seeder = require('./public/js/seeder'),
