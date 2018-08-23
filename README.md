@@ -1,6 +1,6 @@
 # music-shop-online
 online platform to purchase music
-Fetch songs from iTunes API based on artist name and make it available for purchase using stripe payment gateway
+Fetch songs from iTunes API based on artist name and make it available for purchase using stripe payment gateway. This project is meant only for practice purpose no Copyright to any API is intended.
 
 Steps :
 1. node app.js
