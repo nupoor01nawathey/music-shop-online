@@ -153,6 +153,9 @@ app.post('/checkout', (req, res, next) => {
     });
 });
 
+app.get('/user/signup', (req, res) => {
+    res.render('user/signup');
+});
 
 const PORT = process.env.PORT || 3000 ; // TODO get it from config depending on dev/prod env
 app.listen(PORT, () => {
