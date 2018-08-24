@@ -175,6 +175,27 @@ app.get('/user/signin', (req, res) => {
       res.render('user/signin');
 });
 
+app.post('/user/signin', passport.authenticate("local", {
+    successRedirect: '/user/profile',
+    failureRedirect: '/user/signup'
+}));
+
+app.get('/user/signout', isLoggedIn, (req, res) => {
+    req.logout();
+    res.redirect('/user/signin');
+});
+
+app.get('/user/profile', isLoggedIn, (req, res) => {
+    res.render('user/profile');
+ });
+
+function isLoggedIn(req, res, next) {
+    if(req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/user/signin");
+}
+
 const PORT = process.env.PORT || 3000 ; // TODO get it from config depending on dev/prod env
 app.listen(PORT, () => {
     console.log(`Server started at port ${PORT}`)
