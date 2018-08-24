@@ -172,7 +172,7 @@ app.post('/user/signup', (req, res) => {
 });
 
 app.get('/user/signin', (req, res) => {
-    res.send('successfully registered');
+      res.render('user/signin');
 });
 
 const PORT = process.env.PORT || 3000 ; // TODO get it from config depending on dev/prod env
