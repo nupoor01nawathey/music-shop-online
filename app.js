@@ -157,6 +157,24 @@ app.get('/user/signup', (req, res) => {
     res.render('user/signup');
 });
 
+app.post('/user/signup', (req, res) => {
+    const username = req.body.username,
+          password = req.body.password;
+
+    User.register(new User({username: username}), password, (err, user) => {
+        if(err) {
+            return res.render('user/signup');
+        }
+        passport.authenticate("local")(req, res, () => {
+            res.redirect('/user/signin');
+        });
+    });
+});
+
+app.get('/user/signin', (req, res) => {
+    res.send('successfully registered');
+});
+
 const PORT = process.env.PORT || 3000 ; // TODO get it from config depending on dev/prod env
 app.listen(PORT, () => {
     console.log(`Server started at port ${PORT}`)
