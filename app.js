@@ -147,9 +147,20 @@ app.post('/checkout', (req, res, next) => {
            req.flash('error', err.message);
            return res.redirect('/checkout'); 
         } 
-        req.flash('success', 'Successfully placed an order');
-        req.cart = null;
-        res.redirect('/');
+        const order = new Order({
+            user: req.user, // passport gives user 
+            cart: cart,
+            address: req.body.address,
+            name: req.body.name,
+            paymentId: charge.id
+        });
+        order.save((err, order) => {
+            if(err) {
+                // go back to checkout page
+            }
+            req.cart = null;
+            res.redirect('/index');
+        });
     });
 });
 
