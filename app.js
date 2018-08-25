@@ -125,7 +125,7 @@ app.get('/checkout', (req, res) => {
     res.render('cart/checkout', {total: cart.totalPrice, errMsg: errMsg, noError: !errMsg });
 });
 
-app.post('/checkout', (req, res, next) => {   
+app.post('/checkout', isLoggedIn, (req, res, next) => { // force user login before making charges
     if(!req.session.cart) {
         return res.redirect('/shopping-cart');
     }
@@ -158,7 +158,7 @@ app.post('/checkout', (req, res, next) => {
             if(err) {
                 // go back to checkout page
             }
-            req.cart = null;
+            req.session.cart = null; // empty cart once purchase is complete
             res.redirect('/index');
         });
     });
@@ -191,13 +191,14 @@ app.post('/user/signin', passport.authenticate("local", {
     failureRedirect: '/user/signup'
 }));
 
-app.get('/user/signout', isLoggedIn, (req, res) => {
+app.get('/user/signout', isLoggedIn, (req, res) => { // force user login before hitting signout page
+    req.session.cart = null; // empty cart once logged out
     req.logout();
     res.redirect('/user/signin');
 });
 
 app.get('/user/profile', isLoggedIn, (req, res) => {
-    res.render('user/profile');
+    res.render('user/profile'); // force user login before hitting profile page
  });
 
 function isLoggedIn(req, res, next) {
