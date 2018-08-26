@@ -21,7 +21,8 @@ const seeder                = require('./public/js/seeder'),
       Cart                  = require("./models/cart");
 
 // include routes
-const indexRouter           = require('./routes/index');
+const indexRouter           = require('./routes/index')
+      songsRouter           = require('./routes/songs');
 
 
 // setup express app
@@ -66,23 +67,7 @@ app.use((req, res, next) => {
 
 
 app.use('/index', indexRouter);
-
-app.get('/', (req, res, next) => { 
-    // Remove existing data for the input Artist 
-    const artistName = String(req.query.name);
-    // seeder(artistName);
-    Artist.find({ artistName: artistName})
-    .select('_id trackName trackPrice collectionName currency previewUrl')
-    .exec(function(err, artistSongs){
-        if(err) {
-            console.log(err);
-        }
-        res.render('common/songs', {
-            artist: artistName,
-            songs: artistSongs
-        });
-    });
-});
+app.use('/', songsRouter);
 
 
 app.get('/add-to-cart/:id', (req, res) => {
