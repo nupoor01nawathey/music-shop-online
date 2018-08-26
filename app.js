@@ -12,8 +12,7 @@ const express               = require('express'),
       passport              = require('passport'),
       LocalStrategy         = require('passport-local'),
       PassportLocalMongoose = require('passport-local-mongoose'),
-      isomorphic            = require('isomorphic-fetch'),
-      stripe                = require('stripe') ;
+      isomorphic            = require('isomorphic-fetch');
 
 // include custom lib
 const seeder                = require('./public/js/seeder'),
@@ -24,7 +23,8 @@ const seeder                = require('./public/js/seeder'),
 const indexRouter           = require('./routes/index')
       songsRouter           = require('./routes/songs'),
       addToCartRouter       = require('./routes/addToCart'),
-      shoppingCartRouter    = require('./routes/shoppingCart');
+      shoppingCartRouter    = require('./routes/shoppingCart'),
+      checkoutRouter        = require('./routes/checkout');
 
 // setup express app
 const app =  express();
@@ -71,55 +71,8 @@ app.use('/index', indexRouter);
 app.use('/', songsRouter);
 app.use('/add-to-cart', addToCartRouter);
 app.use('/shopping-cart', shoppingCartRouter);
+app.use('/checkout', checkoutRouter);
 
-
-app.get('/checkout', (req, res) => {
-    if(!req.session.cart) {
-        return res.redirect('/shopping-cart');
-    }
-    const cart = new Cart(req.session.cart);
-    const errMsg = req.flash('error')[0];
-    res.render('cart/checkout', {total: cart.totalPrice, errMsg: errMsg, noError: !errMsg });
-});
-
-app.post('/checkout', isLoggedIn, (req, res, next) => { // force user login before making charges
-    if(!req.session.cart) {
-        return res.redirect('/shopping-cart');
-    }
-    const cart = new Cart(req.session.cart);
-
-    // Set your secret key: remember to change this to your live secret key in production   
-    var stripe = require("stripe")("YOUR_SECRET_KEY");
-
-    // Token is created using Checkout or Elements!
-    // Get the payment token ID submitted by the form:
-    const token = req.body.stripeToken; // Using Express
-    const charge = stripe.charges.create({
-    amount: cart.totalPrice * 100,
-    currency: 'usd',
-    description: 'Example charge 1',
-    source: "tok_mastercard",
-    }, (err, charge) => {
-        if(err) {
-           req.flash('error', err.message);
-           return res.redirect('/checkout'); 
-        } 
-        const order = new Order({
-            user: req.user, // passport gives user 
-            cart: cart,
-            address: req.body.address,
-            name: req.body.name,
-            paymentId: charge.id
-        });
-        order.save((err, order) => {
-            if(err) {
-                // go back to checkout page
-            }
-            req.session.cart = null; // empty cart once purchase is complete
-            res.redirect('/index');
-        });
-    });
-});
 
 app.get('/user/signup', (req, res) => {
     res.render('user/signup');
