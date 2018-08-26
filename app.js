@@ -16,9 +16,13 @@ const express               = require('express'),
       stripe                = require('stripe') ;
 
 // include custom lib
-const seeder = require('./public/js/seeder'),
-      Artist = require('./models/artist'),
-      Cart = require("./models/cart");
+const seeder                = require('./public/js/seeder'),
+      Artist                = require('./models/artist'),
+      Cart                  = require("./models/cart");
+
+// include routes
+const indexRouter           = require('./routes/index');
+
 
 // setup express app
 const app =  express();
@@ -60,10 +64,8 @@ app.use((req, res, next) => {
     next();
 })
 
-// setup get route which will display all products
-app.get('/index', (req, res) => {
-    res.render('common/index');
-});
+
+app.use('/index', indexRouter);
 
 app.get('/', (req, res, next) => { 
     // Remove existing data for the input Artist 
