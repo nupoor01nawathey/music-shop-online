@@ -22,8 +22,9 @@ const seeder                = require('./public/js/seeder'),
 
 // include routes
 const indexRouter           = require('./routes/index')
-      songsRouter           = require('./routes/songs');
-
+      songsRouter           = require('./routes/songs'),
+      addToCartRouter       = require('./routes/addToCart'),
+      shoppingCartRouter    = require('./routes/shoppingCart');
 
 // setup express app
 const app =  express();
@@ -68,40 +69,9 @@ app.use((req, res, next) => {
 
 app.use('/index', indexRouter);
 app.use('/', songsRouter);
+app.use('/add-to-cart', addToCartRouter);
+app.use('/shopping-cart', shoppingCartRouter);
 
-
-app.get('/add-to-cart/:id', (req, res) => {
-    // res.send('From SHopping-cart');
-    const songId = req.params.id;
-
-    const cart = new Cart(req.session.cart ? req.session.cart : {}); // send if cart already exists within the session 
-
-    Artist.findById(songId, (err, song) => {
-        encodeURIComponent(song.artistName); // imp
-        if(err) {
-            res.redirect('/'); // http://localhost:3000/?name=John+Mayer
-        }
-       cart.add(song, songId);
-       req.session.cart = cart ; // save cart session
-       
-       // res.redirect('/');
-
-       res.redirect('/?name=' + song.artistName); // http://localhost:3000/?name=John+Mayer
-
-    }); 
-});
-
-app.get('/shopping-cart', (req, res) => {
-    // res.send('Going to shopping-cart');
-    if(!req.session.cart) {
-        return res.render('cart/shopping-cart', {songs: null});
-    } 
-    var cart = new Cart(req.session.cart);
-    res.render('cart/shopping-cart', { 
-        songs: cart.generateArray(),  
-        totalPrice: cart.totalPrice 
-    });
-});
 
 app.get('/checkout', (req, res) => {
     if(!req.session.cart) {
