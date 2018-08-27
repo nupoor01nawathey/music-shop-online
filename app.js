@@ -79,3 +79,4 @@ app.listen(PORT, () => {
     console.log(`Server started at port ${PORT}`)
 });
 
+module.exports = app;
