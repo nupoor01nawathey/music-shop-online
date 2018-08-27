@@ -9,3 +9,11 @@ it('Check if /index route returns 200OK response', (done) => {
         done();
     });
 });
+
+
+it('Check if /index/about route returns 4xx response', (done) => {
+    request('http://localhost:3000/index/about', (err, res, body) => {
+        expect(res.statusCode).to.equal(404);
+        done();
+    });
+});
